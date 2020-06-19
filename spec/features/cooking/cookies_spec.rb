@@ -1,3 +1,6 @@
+require 'sidekiq/testing'
+Sidekiq::Testing.inline!
+
 feature 'Cooking cookies' do
   scenario 'Cooking a single cookie' do
     user = create_and_signin
@@ -10,6 +13,8 @@ feature 'Cooking cookies' do
 
     click_link_or_button 'Prepare Cookie'
     fill_in 'Fillings', with: 'Chocolate Chip'
+    fill_in 'oven_time', with: '0.1'
+    fill_in 'quantity', with: '1'
     click_button 'Mix and bake'
 
     expect(current_path).to eq(oven_path(oven))
@@ -35,6 +40,7 @@ feature 'Cooking cookies' do
 
     click_link_or_button 'Prepare Cookie'
     fill_in 'Fillings', with: 'Chocolate Chip'
+    fill_in 'oven_time', with: '0.1'
     fill_in 'quantity', with: '1'
     click_button 'Mix and bake'
 
@@ -54,6 +60,8 @@ feature 'Cooking cookies' do
     3.times do
       click_link_or_button 'Prepare Cookie'
       fill_in 'Fillings', with: 'Chocolate Chip'
+      fill_in 'oven_time', with: '0.1'
+      fill_in 'quantity', with: '1'
       click_button 'Mix and bake'
 
       click_button 'Retrieve Cookie'
@@ -72,6 +80,8 @@ feature 'Cooking cookies' do
     visit oven_path(oven)
 
     click_link_or_button 'Prepare Cookie'
+    fill_in 'oven_time', with: '0.1'
+    fill_in 'quantity', with: '1'
     click_button 'Mix and bake'
 
     expect(current_path).to eq(oven_path(oven))
@@ -94,6 +104,8 @@ feature 'Cooking cookies' do
 
     3.times do
       click_link_or_button 'Prepare Cookie'
+      fill_in 'oven_time', with: '0.1'
+      fill_in 'quantity', with: '1'
       click_button 'Mix and bake'
 
       click_button 'Retrieve Cookie'
