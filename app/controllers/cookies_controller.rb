@@ -19,14 +19,27 @@ class CookiesController < ApplicationController
       quantity = 0
     end
 
-    if quantity.positive?
-      quantity.times do
-        @cookie = @oven.cookies.create!(cookie_params)
-      end
-      redirect_to oven_path(@oven)
-    else
-      redirect_to new_oven_cookies_path, alert: 'You must enter a valid quantity!'
+    begin
+      oven_time = params[:oven_time].to_i
+    rescue StandardError
+      oven_time = 0
     end
+
+    unless quantity.positive?
+      redirect_to new_oven_cookies_path, alert: 'You must enter a valid quantity!'
+      return
+    end
+
+    unless oven_time.positive?
+      redirect_to new_oven_cookies_path, alert: 'You must enter a valid oven time for your cookies!'
+      return
+    end
+
+    quantity.times do
+      @cookie = @oven.cookies.create!(cookie_params)
+    end
+    CookiesWorker.perform_async(@oven.id, oven_time)
+    redirect_to oven_path(@oven)
   end
 
   private
