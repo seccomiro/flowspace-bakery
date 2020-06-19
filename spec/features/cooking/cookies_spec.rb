@@ -35,10 +35,11 @@ feature 'Cooking cookies' do
 
     click_link_or_button 'Prepare Cookie'
     fill_in 'Fillings', with: 'Chocolate Chip'
+    fill_in 'quantity', with: '1'
     click_button 'Mix and bake'
 
     click_link_or_button  'Prepare Cookie'
-    expect(page).to have_content 'A cookie is already in the oven!'
+    expect(page).to have_content 'One or more cookies are already in the oven!'
     expect(current_path).to eq(oven_path(oven))
     expect(page).to_not have_button 'Mix and bake'
   end

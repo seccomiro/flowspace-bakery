@@ -53,7 +53,7 @@ describe CookiesController do
   end
 
   describe 'POST create' do
-    let(:the_request) { post :create, params: { oven_id: oven.id, cookie: cookie_params } }
+    let(:the_request) { post :create, params: { oven_id: oven.id, cookie: cookie_params, quantity: 1 } }
     let(:cookie_params) {
       {
         fillings: 'Vanilla',
