@@ -1,16 +1,15 @@
 %h3= @oven.name
 
-.cookie-info
-  Cookie in oven:
-  - if @oven.cookies.any?
-    = pluralize(@oven.cookies.count, "Cookie")
-    with #{@oven.cookies.first.fillings || "no fillings"}
-    - if @oven.cookies.first.ready?
-      (Your Cookie is Ready)
-      = button_to "Retrieve Cookie", empty_oven_path, class: 'button tiny'
-  - else
-    None
+.oven-info
+  .cookie-info
+    Cookie in oven:
+    - if @oven.cookies.any?
+      = pluralize(@oven.cookies.count, "Cookie")
+      with #{@oven.cookies.first.fillings || "no fillings"}
+      - if @oven.cookies.first.ready?
+        (Your Cookie is Ready)
+        = button_to "Retrieve Cookie", empty_oven_path, class: 'button tiny btn-retrieve'
+    - else
+      None
 
-%br
-
-= link_to "Prepare Cookie", new_oven_cookies_path(@oven), class: 'button'
+  = link_to "Prepare Cookie", new_oven_cookies_path(@oven), class: 'button btn-prepare'
