@@ -2,9 +2,10 @@
 
 .cookie-info
   Cookie in oven:
-  - if @oven.cookie
-    1 cookie with #{@oven.cookie.fillings || "no fillings"}
-    - if @oven.cookie.ready?
+  - if @oven.cookies.any?
+    = pluralize(@oven.cookies.count, "Cookie")
+    with #{@oven.cookies.first.fillings || "no fillings"}
+    - if @oven.cookies.first.ready?
       (Your Cookie is Ready)
       = button_to "Retrieve Cookie", empty_oven_path, class: 'button tiny'
   - else
