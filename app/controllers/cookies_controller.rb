@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CookiesController < ApplicationController
   before_action :authenticate_user!
 
@@ -19,6 +21,8 @@ class CookiesController < ApplicationController
   private
 
   def cookie_params
-    params.require(:cookie).permit(:fillings)
+    result_params = params.require(:cookie).permit(:fillings)
+    result_params.delete(:fillings) if result_params[:fillings].empty?
+    result_params
   end
 end
