@@ -1,4 +1,6 @@
 require 'spec_helper'
+require 'sidekiq/testing'
+Sidekiq::Testing.inline!
 
 describe CookiesController do
   let(:user) { FactoryGirl.create(:user) }
@@ -54,7 +56,7 @@ describe CookiesController do
 
   describe 'POST create' do
     context "a single cookie" do
-      let(:the_request) { post :create, params: { oven_id: oven.id, cookie: cookie_params, quantity: 1 } }
+      let(:the_request) { post :create, params: { oven_id: oven.id, cookie: cookie_params, quantity: 1, oven_time: 0.1 } }
       let(:cookie_params) {
         {
           fillings: 'Vanilla',
@@ -112,7 +114,7 @@ describe CookiesController do
     end
 
     context "multiple cookies" do
-      let(:the_request) { post :create, params: { oven_id: oven.id, cookie: cookie_params, quantity: 5 } }
+      let(:the_request) { post :create, params: { oven_id: oven.id, cookie: cookie_params, quantity: 5, oven_time: 0.1 } }
       let(:cookie_params) {
         {
           fillings: 'Vanilla',

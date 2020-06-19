@@ -20,7 +20,7 @@ class CookiesController < ApplicationController
     end
 
     begin
-      oven_time = params[:oven_time].to_i
+      oven_time = params[:oven_time].to_f
     rescue StandardError
       oven_time = 0
     end
@@ -38,8 +38,9 @@ class CookiesController < ApplicationController
     quantity.times do
       @cookie = @oven.cookies.create!(cookie_params)
     end
-    CookiesWorker.perform_async(@oven.id, oven_time)
     redirect_to oven_path(@oven)
+
+    CookiesWorker.perform_async(@oven.id, oven_time)
   end
 
   private

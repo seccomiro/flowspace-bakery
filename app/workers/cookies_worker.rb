@@ -4,7 +4,7 @@ class CookiesWorker
   include Sidekiq::Worker
 
   def perform(oven_id, oven_time)
-    puts 'Start Cooking'
+    puts "Start Cooking: #{oven_time} seconds" unless Rails.env.test?
 
     sleep oven_time
 
@@ -13,6 +13,6 @@ class CookiesWorker
       cookie.update_attributes!(ready: true)
     end
 
-    puts 'Finish Cooking'
+    puts 'Finish Cooking' unless Rails.env.test?
   end
 end
