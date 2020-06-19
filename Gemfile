@@ -78,4 +78,5 @@ group :test do
   gem 'rspec-collection_matchers'
   gem 'rspec_junit_formatter'
   gem 'rails-controller-testing'
+  gem 'timecop'
 end
