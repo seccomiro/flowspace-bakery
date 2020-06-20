@@ -1,4 +1,6 @@
 require 'spec_helper'
+require 'sidekiq/testing'
+Sidekiq::Testing.inline!
 
 describe CookiesController do
   let(:user) { FactoryGirl.create(:user) }
@@ -53,61 +55,120 @@ describe CookiesController do
   end
 
   describe 'POST create' do
-    let(:the_request) { post :create, params: { oven_id: oven.id, cookie: cookie_params } }
-    let(:cookie_params) {
-      {
-        fillings: 'Vanilla',
+    context "a single cookie" do
+      let(:the_request) { post :create, params: { oven_id: oven.id, cookie: cookie_params, quantity: 1, oven_time: 0.1 } }
+      let(:cookie_params) {
+        {
+          fillings: 'Vanilla',
+        }
       }
-    }
 
-    context "when not authenticated" do
-      before { sign_in nil }
+      context "when not authenticated" do
+        before { sign_in nil }
 
-      it "blocks access" do
-        the_request
-        expect(response).to redirect_to new_user_session_path
+        it "blocks access" do
+          the_request
+          expect(response).to redirect_to new_user_session_path
+        end
+      end
+
+      context "when authenticated" do
+        before { sign_in user }
+
+        it "allows access" do
+          expect {
+            the_request
+          }.to_not raise_error
+        end
+
+        context "when a valid oven is supplied" do
+          it "creates a cookie for that oven" do
+            expect {
+              the_request
+            }.to change{Cookie.count}.by(1)
+
+            expect(Cookie.last.storage).to eq(oven)
+          end
+
+          it "redirects to the oven" do
+            the_request
+            expect(response).to redirect_to oven_path(oven)
+          end
+
+          it "assigns valid cookie parameters" do
+            the_request
+            expect(Cookie.last.fillings).to eq(cookie_params[:fillings])
+          end
+        end
+
+        context "when an oven belonging to another user is supplied" do
+          let(:oven) { FactoryGirl.create(:oven) }
+
+          it "is not successful" do
+            expect {
+              the_request
+            }.to raise_error(ActiveRecord::RecordNotFound)
+          end
+        end
       end
     end
 
-    context "when authenticated" do
-      before { sign_in user }
+    context "multiple cookies" do
+      let(:the_request) { post :create, params: { oven_id: oven.id, cookie: cookie_params, quantity: 5, oven_time: 0.1 } }
+      let(:cookie_params) {
+        {
+          fillings: 'Vanilla',
+        }
+      }
 
-      it "allows access" do
-        expect {
+      context "when not authenticated" do
+        before { sign_in nil }
+
+        it "blocks access" do
           the_request
-        }.to_not raise_error
-      end
-
-      context "when a valid oven is supplied" do
-        it "creates a cookie for that oven" do
-          expect {
-            the_request
-          }.to change{Cookie.count}.by(1)
-
-          expect(Cookie.last.storage).to eq(oven)
-        end
-
-        it "redirects to the oven" do
-          the_request
-          expect(response).to redirect_to oven_path(oven)
-        end
-
-        it "assigns valid cookie parameters" do
-          the_request
-          expect(Cookie.last.fillings).to eq(cookie_params[:fillings])
+          expect(response).to redirect_to new_user_session_path
         end
       end
 
-      context "when an oven belonging to another user is supplied" do
-        let(:oven) { FactoryGirl.create(:oven) }
+      context "when authenticated" do
+        before { sign_in user }
 
-        it "is not successful" do
+        it "allows access" do
           expect {
             the_request
-          }.to raise_error(ActiveRecord::RecordNotFound)
+          }.to_not raise_error
+        end
+
+        context "when a valid oven is supplied" do
+          it "creates 5 cookies for that oven" do
+            expect {
+              the_request
+            }.to change{Cookie.count}.by(5)
+
+            expect(Cookie.last.storage).to eq(oven)
+          end
+
+          it "redirects to the oven" do
+            the_request
+            expect(response).to redirect_to oven_path(oven)
+          end
+
+          it "assigns valid cookie parameters" do
+            the_request
+            expect(Cookie.last.fillings).to eq(cookie_params[:fillings])
+          end
+        end
+
+        context "when an oven belonging to another user is supplied" do
+          let(:oven) { FactoryGirl.create(:oven) }
+
+          it "is not successful" do
+            expect {
+              the_request
+            }.to raise_error(ActiveRecord::RecordNotFound)
+          end
         end
       end
     end
-
   end
 end

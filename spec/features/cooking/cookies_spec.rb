@@ -1,3 +1,6 @@
+require 'sidekiq/testing'
+Sidekiq::Testing.inline!
+
 feature 'Cooking cookies' do
   scenario 'Cooking a single cookie' do
     user = create_and_signin
@@ -10,6 +13,8 @@ feature 'Cooking cookies' do
 
     click_link_or_button 'Prepare Cookie'
     fill_in 'Fillings', with: 'Chocolate Chip'
+    fill_in 'oven_time', with: '0.1'
+    fill_in 'quantity', with: '1'
     click_button 'Mix and bake'
 
     expect(current_path).to eq(oven_path(oven))
@@ -35,10 +40,12 @@ feature 'Cooking cookies' do
 
     click_link_or_button 'Prepare Cookie'
     fill_in 'Fillings', with: 'Chocolate Chip'
+    fill_in 'oven_time', with: '0.1'
+    fill_in 'quantity', with: '1'
     click_button 'Mix and bake'
 
     click_link_or_button  'Prepare Cookie'
-    expect(page).to have_content 'A cookie is already in the oven!'
+    expect(page).to have_content 'One or more cookies are already in the oven!'
     expect(current_path).to eq(oven_path(oven))
     expect(page).to_not have_button 'Mix and bake'
   end
@@ -53,6 +60,8 @@ feature 'Cooking cookies' do
     3.times do
       click_link_or_button 'Prepare Cookie'
       fill_in 'Fillings', with: 'Chocolate Chip'
+      fill_in 'oven_time', with: '0.1'
+      fill_in 'quantity', with: '1'
       click_button 'Mix and bake'
 
       click_button 'Retrieve Cookie'
@@ -61,6 +70,50 @@ feature 'Cooking cookies' do
     visit root_path
     within '.store-inventory' do
       expect(page).to have_content '3 Cookies'
+    end
+  end
+
+  scenario 'Cooking a single cookie with no filling' do
+    user = create_and_signin
+    oven = user.ovens.first
+
+    visit oven_path(oven)
+
+    click_link_or_button 'Prepare Cookie'
+    fill_in 'oven_time', with: '0.1'
+    fill_in 'quantity', with: '1'
+    click_button 'Mix and bake'
+
+    expect(current_path).to eq(oven_path(oven))
+    expect(page).to have_content 'no fillings'
+
+    click_button 'Retrieve Cookie'
+
+    visit root_path
+    within '.store-inventory' do
+      expect(page).to have_content '1 Cookie with no filling'
+    end
+  end
+
+  scenario 'Baking multiple cookies with no filling' do
+    user = create_and_signin
+    oven = user.ovens.first
+
+    oven = FactoryGirl.create(:oven, user: user)
+    visit oven_path(oven)
+
+    3.times do
+      click_link_or_button 'Prepare Cookie'
+      fill_in 'oven_time', with: '0.1'
+      fill_in 'quantity', with: '1'
+      click_button 'Mix and bake'
+
+      click_button 'Retrieve Cookie'
+    end
+
+    visit root_path
+    within '.store-inventory' do
+      expect(page).to have_content '3 Cookies with no filling'
     end
   end
 end

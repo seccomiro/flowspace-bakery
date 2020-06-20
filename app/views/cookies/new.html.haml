@@ -10,6 +10,20 @@
 
   .row
     .small-8.columns
+      = label_tag 'quantity'
+  .row
+    .small-8.columns
+      = number_field_tag 'quantity', 1
+
+  .row
+    .small-8.columns
+      = label_tag 'oven_time', 'How long do you want to leave them in the oven? (in seconds)'
+  .row
+    .small-8.columns
+      = number_field_tag 'oven_time', 60
+
+  .row
+    .small-8.columns
       = f.submit 'Mix and bake', class: 'button'
 
 

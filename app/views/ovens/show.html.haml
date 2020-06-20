@@ -1,15 +1,17 @@
-%h3= @oven.name
+%h3(data-page="oven-show" data-url="#{status_oven_path(@oven)}")= @oven.name
 
-.cookie-info
-  Cookie in oven:
-  - if @oven.cookie
-    1 cookie with #{@oven.cookie.fillings || "no fillings"}
-    - if @oven.cookie.ready?
-      (Your Cookie is Ready)
-      = button_to "Retrieve Cookie", empty_oven_path, class: 'button tiny'
-  - else
-    None
+.oven-info
+  .cookie-info
+    %span.cookie-data
+      Cookie in oven:
+      - if @oven.cookies.any?
+        = pluralize(@oven.cookies.count, "Cookie")
+        with #{@oven.cookies.first.fillings || "no fillings"}
+        - if @oven.cookies.first.ready?
+          (Your Cookie is Ready)
+      - else
+        None
+    .retrieve{style: "display: #{@oven.cookies.any? && @oven.cookies.first.ready? ? 'block' : 'none'}"}
+      = button_to "Retrieve Cookie", empty_oven_path, class: 'button tiny btn-retrieve'
 
-%br
-
-= link_to "Prepare Cookie", new_oven_cookies_path(@oven), class: 'button'
+  = link_to "Prepare Cookie", new_oven_cookies_path(@oven), class: 'button btn-prepare'
