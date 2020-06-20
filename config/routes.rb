@@ -13,6 +13,7 @@ Rails.application.routes.draw do
     resource :cookies
     member do
       post :empty
+      get :status
     end
   end
 end
